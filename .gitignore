@@ -1,0 +1,11 @@
+Images/
+files/
+test_mps.py
+test.py
+tester.py
+__pycache__/
+output.txt
+
+# Add them in when hyperparams are tuned
+logs/
+checkpoints/
