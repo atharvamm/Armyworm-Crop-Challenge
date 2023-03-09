@@ -61,9 +61,9 @@ def val(model,dataloader,criterion):
     for i,data in enumerate(dataloader):
         images,labels = data
         images,labels = images.to(DEVICE),labels.to(DEVICE)
-
-        outputs = model(images)
-        cur_loss = criterion(outputs,labels).cpu().detach().numpy()
+        with torch.inference_mode():
+            outputs = model(images)
+            cur_loss = criterion(outputs,labels).cpu().detach().numpy()
         correct = int((torch.argmax(outputs,axis = 1) == labels).cpu().detach().numpy().sum())
         total_loss += cur_loss
 
