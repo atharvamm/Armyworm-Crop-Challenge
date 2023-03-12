@@ -13,13 +13,14 @@ config = {
     "epochs" : 50,
     "batch_size" : 4,
     "init_lr" : 1e-5,
-    "momentum" : 0.9,
-    "weight_decay" : 1e-3,
+    "weight_decay" : 1e-5,
     "lr_mode" : "max",
-    "factor" : 0.25,
+    "factor" : 0.5,
     "patience" : 3,
     "shuffle" : True,
-    "logs_string" : "Logs for Makerere Challenge\n\n\n\n"
+    "logs_string" : "Logs for Makerere Challenge\n\n\n\n",
+    "clean_logs" : True,
+
 }
 
 # Cur Time
@@ -64,7 +65,7 @@ def val(model,dataloader,criterion):
         with torch.inference_mode():
             outputs = model(images)
             cur_loss = criterion(outputs,labels).cpu().detach().numpy()
-        correct = int((torch.argmax(outputs,axis = 1) == labels).cpu().detach().numpy().sum())
+        correct += int((torch.argmax(outputs,axis = 1) == labels).cpu().detach().numpy().sum())
         total_loss += cur_loss
 
     acc = correct / (config["batch_size"]*len(dataloader))
@@ -163,7 +164,7 @@ if __name__ == "__main__":
 
     # Initialize optimizer,lr scheduler,loss function
     loss_fn = nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(params= model.parameters(),lr = config["init_lr"],momentum= config["momentum"],weight_decay=config["weight_decay"])
+    optimizer = torch.optim.AdamW(params= model.parameters(),lr = config["init_lr"],weight_decay=config["weight_decay"])
     # optimizer.to(DEVICE)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer,mode = config["lr_mode"],factor=config["factor"],patience=config["patience"])
 
@@ -197,6 +198,12 @@ if __name__ == "__main__":
         logs.loc[len(logs.index)] = log_vals 
         write_logs(logf=write_log_op,vals=log_vals)
 
+        # Check grad_vals
+        # named_parameters = model.named_parameters()
+        # for n, p in named_parameters:
+        #     if(p.requires_grad) and ("bias" not in n):
+        #         print("Mean grad:",p.grad.abs().mean())
+        #         # print("Max grad:",p.grad.abs().max())
         
         if val_acc > best_acc:
             torch.save(
