@@ -102,6 +102,10 @@ def write_op(predictions = [[],[]],dt = None):
     pred_df.to_csv("submissions/Subimssion_{}.csv".format(date_time),index=False)
 
 if __name__ == "__main__":
+    # Clean Logs
+    if config["clean_logs"]:
+        from os import system
+        system("sh scripts/clean_logs.sh")
 
     # Data Directory
     train_fname,test_fname = "files/Train.csv","files/Test.csv"
