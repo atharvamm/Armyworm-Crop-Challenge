@@ -1,4 +1,5 @@
 import torch.nn as nn
+from torchsummary import summary
 
 # Later add dropout and batchnorm
 # Define weight initialization
@@ -63,3 +64,6 @@ class Network(nn.Module):
     
 
         
+if __name__ == "__main__":
+    model = Network()
+    summary(model.cuda(),input_size = (3,224,224))
