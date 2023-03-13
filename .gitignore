@@ -9,7 +9,6 @@ check_transforms.ipynb
 submits/
 submissions/
 normalization.py
-restart.py
 
 # Add them in when hyperparams are tuned
 logs/
