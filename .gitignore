@@ -6,9 +6,10 @@ tester.py
 __pycache__/
 output.txt
 check_transforms.ipynb
-normalization.py
 submits/
 submissions/
+normalization.py
+restart.py
 
 # Add them in when hyperparams are tuned
 logs/
