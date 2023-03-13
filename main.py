@@ -10,17 +10,18 @@ import gc
 
 #### Define config dictionary
 config = {
-    "epochs" : 50,
+    "epochs" : 1000,
     "batch_size" : 4,
-    "init_lr" : 1e-5,
-    "weight_decay" : 1e-5,
+    "init_lr" : 2e-5,
+    "weight_decay" : 1e-10,
     "lr_mode" : "max",
     "factor" : 0.5,
-    "patience" : 3,
+    "patience" : 10,
     "shuffle" : True,
     "logs_string" : "Logs for Makerere Challenge\n\n\n\n",
     "clean_logs" : True,
-
+    "threshold_mode" : "rel",
+    "threshold_scheduler" : 1e-3
 }
 
 # Cur Time
@@ -123,8 +124,15 @@ if __name__ == "__main__":
     # Training Image Transforms
     train_transforms = torchvision.transforms.Compose([
         torchvision.transforms.Resize((224,224)),
+        torchvision.transforms.RandomRotation(90),
+        torchvision.transforms.GaussianBlur(kernel_size = 5,sigma = (0.1,3)),
+        torchvision.transforms.RandomPerspective(distortion_scale=0.3,p=0.5),
+        torchvision.transforms.RandomVerticalFlip(p=0.75),
+        torchvision.transforms.RandomHorizontalFlip(p=0.75),
+        torchvision.transforms.RandomAdjustSharpness(sharpness_factor=3,p=0.75),
         torchvision.transforms.ToTensor(),
     ])
+
 
     # Validation Image Transforms
     val_transforms = torchvision.transforms.Compose([
@@ -166,7 +174,7 @@ if __name__ == "__main__":
     loss_fn = nn.CrossEntropyLoss()
     optimizer = torch.optim.AdamW(params= model.parameters(),lr = config["init_lr"],weight_decay=config["weight_decay"])
     # optimizer.to(DEVICE)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer,mode = config["lr_mode"],factor=config["factor"],patience=config["patience"])
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer,mode = config["lr_mode"],factor=config["factor"],patience=config["patience"],threshold_mode=config["threshold_mode"],threshold=config["threshold_scheduler"])
 
     from datetime import datetime
     now = datetime.now() # current date and time
@@ -214,7 +222,7 @@ if __name__ == "__main__":
                     'val_acc' : val_acc, 
                     'epoch' : epoch,
                 },
-                "checkpoints/checkpoint_{}_{}.pth".format(val_acc,date_time)
+                "checkpoints/checkpoint_{:.2f}_{}.pth".format(100*val_acc,date_time)
             )
             best_acc = val_acc
 
